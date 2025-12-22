@@ -1,5 +1,3 @@
-from test
-
 
 from fastapi import FastAPI
 from db import get_connection
