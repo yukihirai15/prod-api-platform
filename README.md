@@ -17,6 +17,3 @@ Client → NGINX → FastAPI (scaled) → PostgreSQL
 docker compose up --build --scale api=2
 
 
-
-
-CI Test
