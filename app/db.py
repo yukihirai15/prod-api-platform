@@ -1,6 +1,6 @@
 import psycopg2
 import os
-from logger import get_logger
+from app.logger import get_logger
 
 logger = get_logger(__name__)
 

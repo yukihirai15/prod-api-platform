@@ -1,6 +1,6 @@
 from fastapi import FastAPI
-from db import get_connection
-from logger import get_logger
+from app.db import get_connection
+from app.logger import get_logger
 from fastapi import HTTPException
 import socket
 
