@@ -15,3 +15,8 @@ Client → NGINX → FastAPI (scaled) → PostgreSQL
 ## Run Locally
 ```bash
 docker compose up --build --scale api=2
+
+
+
+
+CI Test
