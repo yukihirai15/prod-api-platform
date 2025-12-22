@@ -4,8 +4,6 @@ from logger import get_logger
 from fastapi import HTTPException
 import socket
 
-x=1
-
 HOSTNAME = socket.gethostname()
 
 MAX_Retires = 5
