@@ -20,7 +20,7 @@ jobs:
          pip install -r requirements.txt
      - name: Check Python Syntax
        run: |
-         python -m py_compile main.py
+         python -m py_compile app/main.py
      - name: Build Docker image
        run: |
          docker build -t prod-api-platform .
