@@ -27,6 +27,7 @@ jobs:
 
      - name: Check formatting ( Black )
        run: |
+         pip install black
          black --check .
 
      - name: Linting Code
