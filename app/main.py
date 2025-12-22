@@ -1,5 +1,3 @@
-break main file to test CI Pipeline
-
 
 from fastapi import FastAPI
 from db import get_connection
