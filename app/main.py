@@ -33,7 +33,7 @@ def readiness():
 
 @app.get("/")
 def root():
-    return {"mesg": "Hello", "served_by": HOSTNAME}
+    return {"message": "Hello", "served_by": HOSTNAME}
 
 
 @app.get("/health")
