@@ -10,6 +10,12 @@ def test_root():
     response = client.get("/")
 
     assert response.status_code == 200
+    data = response.json()
+    assert "message" in data
+    assert data["message"] == "Hello"
+
+    assert "served_by" in data
+    assert isinstance(data["served_by"], str)
 
 
 def test_health():
