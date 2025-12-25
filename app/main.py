@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from app.db import get_connection
+from app.db import get_connection, check_db_health
 from app.logger import get_logger
 from fastapi import HTTPException
 import socket
@@ -22,13 +22,10 @@ def startup_event():
 
 @app.get("/ready")
 def readiness():
-    try:
-        conn = get_connection()
-        conn.close()
+    if check_db_health():
         return {"status": "ready"}
-    except Exception:
-        logger.warning("Readiness check failed", exc_info=True)
-        raise HTTPException(status_code=503, detail="Database not ready")
+    ##logger.warning("Readiness check failed", exc_info=True)
+    raise HTTPException(status_code=503, detail="Database not ready")
 
 
 @app.get("/")

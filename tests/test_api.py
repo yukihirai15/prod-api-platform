@@ -32,3 +32,9 @@ def test_ready():
     response = client.get("/ready")
 
     assert response.status_code in [200, 503]
+
+
+def test_ready_db_down(mocker):
+    mocker.patch("app.db.check_db_health", side_effect=Exception())
+    response = client.get("/ready")
+    assert response.status_code == 503

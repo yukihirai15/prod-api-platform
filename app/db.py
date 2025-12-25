@@ -13,4 +13,17 @@ def get_connection():
         database=os.getenv("DB_NAME"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
+        connect_timeout=3,
     )
+
+
+def check_db_health():
+    try:
+        conn = get_connection()
+        with conn.cursor() as cur:
+            cur.execute("SELECT 1;")
+            cur.fetchone()
+        conn.close()
+        return True
+    except Exception:
+        return False
