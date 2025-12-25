@@ -24,7 +24,7 @@ def startup_event():
 def readiness():
     if check_db_health():
         return {"status": "ready"}
-    ##logger.warning("Readiness check failed", exc_info=True)
+    logger.warning("Readiness check failed", exc_info=True)
     raise HTTPException(status_code=503, detail="Database not ready")
 
 
