@@ -1,8 +1,19 @@
 from fastapi import FastAPI
-from app.db import get_connection, check_db_health
+from app.db import get_connection
+from app.db import check_db_health
 from app.logger import get_logger
 from fastapi import HTTPException
+from fastapi.requests import Request
+from fastapi.responses import JSONResponse
+from starlette.exceptions import HTTPException as StarletteHTTPException
 import socket
+from app.metrics import (
+    REQUEST_COUNT,
+    router as metrics_router,
+    REQUEST_LATENCY,
+    ERROR_COUNT,
+)
+import time
 
 HOSTNAME = socket.gethostname()
 
@@ -12,7 +23,40 @@ RETRY_DELAY = 2
 logger = get_logger(__name__)
 app = FastAPI()
 
+app.include_router(metrics_router)
+
 db_ready = False
+
+
+@app.exception_handler(StarletteHTTPException)
+async def starlette_http_exception_handler(
+    request: Request, exc: StarletteHTTPException
+):
+    ERROR_COUNT.labels(endpoint=request.url.path, status_code=exc.status_code).inc()
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    ERROR_COUNT.labels(endpoint=request.url.path, status_code=500).inc()
+
+    return JSONResponse(
+        status_code=500,
+        content={"detail": " Internal Server Error "},
+    )
+
+
+@app.exception_handler(HTTPException)
+async def http_exception_handler(request: Request, exc: HTTPException):
+    ERROR_COUNT.labels(endpoint=request.url.path, status_code=exc.status_code).inc()
+
+    return JSONResponse(
+        status_code=exc.status_code,
+        content={"detail": exc.detail},
+    )
 
 
 @app.on_event("startup")
@@ -22,15 +66,26 @@ def startup_event():
 
 @app.get("/ready")
 def readiness():
-    if check_db_health():
+    try:
+        check_db_health()
         return {"status": "ready"}
-    logger.warning("Readiness check failed", exc_info=True)
-    raise HTTPException(status_code=503, detail="Database not ready")
+
+    except Exception:
+        raise HTTPException(status_code=503, detail="Database not ready")
+        logger.warning("Readiness check failed", exc_info=True)
 
 
 @app.get("/")
 def root():
-    return {"message": "Hello", "served_by": HOSTNAME}
+    start_time = time.time()
+
+    result = {"message": "Hello", "served_by": HOSTNAME}
+
+    duration = time.time() - start_time
+    REQUEST_COUNT.labels(endpoint="/").inc()
+    REQUEST_LATENCY.labels(endpoint="/").observe(duration)
+
+    return result
 
 
 @app.get("/health")
@@ -47,3 +102,13 @@ def get_users():
     cur.close()
     conn.close()
     return rows
+
+
+@app.get("/boom")
+def boom():
+    raise Exception("Something broke")
+
+
+@app.get("/bad")
+def bad():
+    raise HTTPException(status_code=400, detail="Bad Request")
