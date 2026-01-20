@@ -73,7 +73,8 @@ async def start_health_loop():
             await asyncio.sleep(10)
 
     asyncio.create_task(loop())
-    
+
+
 def startup_event():
     logger.info("API service started")
 
