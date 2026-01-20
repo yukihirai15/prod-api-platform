@@ -60,6 +60,20 @@ async def http_exception_handler(request: Request, exc: HTTPException):
 
 
 @app.on_event("startup")
+async def start_health_loop():
+    import asyncio
+    from app.db import check_db_health
+
+    async def loop():
+        while True:
+            try:
+                check_db_health()
+            except:
+                pass
+            await asyncio.sleep(10)
+
+    asyncio.create_task(loop())
+    
 def startup_event():
     logger.info("API service started")
 
@@ -90,7 +104,11 @@ def root():
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    try:
+        check_db_health()
+        return {"status": "ok"}
+    except Exception:
+        return {"status": "db_down"}
 
 
 @app.get("/users")

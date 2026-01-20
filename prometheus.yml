@@ -1,0 +1,24 @@
+global:
+  scrape_interval: 5s
+
+alerting:
+ alertmanagers:
+   - static_configs:
+       - targets:
+           - alertmanager:9093
+
+rule_files:
+ - "alerts.yml"
+
+scrape_configs:
+  - job_name: "api"
+    metrics_path: /metrics
+    static_configs:
+      - targets:
+        - prod-api-platform-api-1:8000
+        - prod-api-platform-api-2:8000
+
+  - job_name: "nginx"
+    static_configs:
+      - targets: ["nginx-exporter:9113"]
+

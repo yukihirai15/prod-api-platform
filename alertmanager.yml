@@ -1,0 +1,22 @@
+global:
+ resolve_timeout: 5m
+route:
+ receiver: "default"
+receivers:
+ - name: "default"
+   email_configs:
+     - to: "your-email@example.com"
+       from: "alertmanager@example.com"
+       smarthost: "smtp.gmail.com:587"
+       auth_username: "your-email@example.com"
+       auth_password: "YOUR_APP_PASSWORD"
+
+
+route:
+ receiver: "slack-notifications"
+receivers:
+ - name: "slack-notifications"
+   slack_configs:
+     - api_url: "https://hooks.slack.com/services/XXXX/XXXX"
+       channel: "#alerts"
+       text: "{{ .CommonAnnotations.summary }}"
